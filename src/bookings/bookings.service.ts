@@ -31,4 +31,18 @@ export class BookingsService {
         });
         return booking;
     }
+
+    async top10BookingEvent(per1: Date, per2: Date) {
+        const query = `
+        SELECT
+        RANK() OVER (ORDER BY COUNT(*) DESC)::int AS rank,
+        user_id,
+        COUNT(*)::int AS booking_count
+        FROM "Bookings"
+        WHERE "Bookings".created_at BETWEEN $1 AND $2
+        GROUP BY user_id
+        ORDER BY booking_count DESC;
+  `;
+        return await this.prisma.$queryRawUnsafe(query, per1, per2);
+    }
 }
